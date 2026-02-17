@@ -175,6 +175,10 @@
             position: relative;
             z-index: 9999;
         }
+        #candle.off{
+            filter: brightness(0.2);
+            opacity:0.5;
+        }
     </style>
 </head>
 <body>
@@ -306,6 +310,41 @@
                 setTimeout(() => c.remove(), (dur + 0.5) * 1000);
             }, i * 25);
         }
+    }
+<script>
+    // SCRIPT KAMU YANG LAMA ADA DI SINI
+    // ==== FITUR TIUP LILIN ====
+    let audioContext;
+    let analyser;
+    let mic;
+
+    function startMic() {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          audioContext = new AudioContext();
+          mic = audioContext.createMediaStreamSource(stream);
+          analyser = audioContext.createAnalyser();
+          mic.connect(analyser);
+
+          const data = new Uint8Array(analyser.frequencyBinCount);
+
+          function detectBlow() {
+            analyser.getByteFrequencyData(data);
+            let volume = data.reduce((a,b)=>a+b) / data.length;
+
+            if(volume > 55){
+              blowOut();
+            } else {
+              requestAnimationFrame(detectBlow);
+            }
+          }
+
+          detectBlow();
+        });
+    }
+
+    function blowOut(){
+      document.getElementById("candle").classList.add("off");
     }
 </script>
 </body>
